@@ -54,11 +54,17 @@ class KNNClassifier:
         distances, np array (num_test_samples, num_train_samples) - array
            with distances between each test and each train sample
         """
+
+        dists = []
         
-        """
-        YOUR CODE IS HERE
-        """
-        pass
+        for indx, test_sample in enumerate(X):
+            dists.append([])
+            for train_sample in self.train_X:
+                dist = np.sum(np.abs(test_sample - train_sample))
+                dists[indx].append(dist)
+
+        return np.array(dists)
+
 
 
     def compute_distances_one_loop(self, X):
@@ -73,11 +79,12 @@ class KNNClassifier:
         distances, np array (num_test_samples, num_train_samples) - array
            with distances between each test and each train sample
         """
+        dists = np.zeros((X.shape[0], self.train_X.shape[0]))
 
-        """
-        YOUR CODE IS HERE
-        """
-        pass
+        for i in range(X.shape[0]):
+            dists[i, :] = np.sum(np.abs(X[i, :] - self.train_X), axis = 1)
+            
+        return dists
 
 
     def compute_distances_no_loops(self, X):
@@ -93,10 +100,9 @@ class KNNClassifier:
            with distances between each test and each train sample
         """
 
-        """
-        YOUR CODE IS HERE
-        """
-        pass
+        dists = np.sum(np.abs(X[:, None] - self.train_X[None,]), axis = 2)
+
+        return dists
 
 
     def predict_labels_binary(self, distances):
@@ -113,12 +119,20 @@ class KNNClassifier:
 
         n_train = distances.shape[1]
         n_test = distances.shape[0]
-        prediction = np.zeros(n_test)
+        prediction = np.zeros(n_test, dtype = object)
 
-        """
-        YOUR CODE IS HERE
-        """
-        pass
+        for i in range(n_test):
+            indxs = np.argpartition(distances[i], self.k) # select k-nearest
+            unique_values, \
+            values_counts = np.unique(self.train_y[indxs[:self.k]], 
+                                      return_counts = True) # prioritize the most abundant
+
+            prediction[i] = unique_values[np.argmax(values_counts)]
+        
+        return prediction
+
+
+        
 
 
     def predict_labels_multiclass(self, distances):
@@ -133,11 +147,4 @@ class KNNClassifier:
            for every test sample
         """
 
-        n_train = distances.shape[0]
-        n_test = distances.shape[0]
-        prediction = np.zeros(n_test, np.int)
-
-        """
-        YOUR CODE IS HERE
-        """
-        pass
+        return self.predict_labels_binary(distances)

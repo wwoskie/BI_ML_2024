@@ -11,15 +11,41 @@ def binary_classification_metrics(y_pred, y_true):
     precision, recall, f1, accuracy - classification metrics
     """
 
-    # TODO: implement metrics!
-    # Some helpful links:
-    # https://en.wikipedia.org/wiki/Precision_and_recall
-    # https://en.wikipedia.org/wiki/F1_score
+    y_pred = y_pred.astype(float).astype(bool)
+    y_true = y_true.astype(float).astype(bool)
 
-    """
-    YOUR CODE IS HERE
-    """
-    pass
+    # not a very clever workaround though
+
+    true_pos = sum((y_pred == y_true) & (y_pred == True))
+    true_neg = sum((y_pred == y_true) & (y_pred == False))
+    false_pos = sum((y_pred != y_true) & (y_pred == True))
+    false_neg = sum((y_pred != y_true) & (y_pred == False))
+
+    try:
+        precision = true_pos / (true_pos + false_pos)
+    except ZeroDivisionError:
+        precision = None
+        print('No positive values predicted')
+
+    try:
+        recall = true_pos / (true_pos + false_neg)
+    except ZeroDivisionError:
+        recall = None
+        print('No true positive and no false negative values predicted')
+    
+    try:
+        f1 = 2 * precision * recall / (precision + recall)
+    except ZeroDivisionError:
+        f1 = None
+        print('No true positive values predicted')
+
+    try:
+        accuracy = (true_pos + true_neg) / len(y_pred)
+    except ZeroDivisionError:
+        accuracy = None
+        print('Empty y_pred passed')
+
+    return precision, recall, f1, accuracy
 
 
 def multiclass_accuracy(y_pred, y_true):
@@ -32,10 +58,7 @@ def multiclass_accuracy(y_pred, y_true):
     accuracy - ratio of accurate predictions to total samples
     """
 
-    """
-    YOUR CODE IS HERE
-    """
-    pass
+    return (sum(y_pred == y_true) / len(y_pred), ) # tuple to fix indexation, sowwy
 
 
 def r_squared(y_pred, y_true):
@@ -48,10 +71,12 @@ def r_squared(y_pred, y_true):
     r2 - r-squared value
     """
 
-    """
-    YOUR CODE IS HERE
-    """
-    pass
+    try:
+        r2 = sum(np.square(y_pred - y_true)) / sum(np.square(y_true - np.mean(y_true)))
+    except ZeroDivisionError:
+        r2 = None
+        print('sum of y_true - y_mean squares is zero')
+    return r2,
 
 
 def mse(y_pred, y_true):
@@ -64,10 +89,12 @@ def mse(y_pred, y_true):
     mse - mean squared error
     """
 
-    """
-    YOUR CODE IS HERE
-    """
-    pass
+    try:
+        mse = sum(np.square(y_true - y_pred)) / len(y_true)
+    except ZeroDivisionError:
+        mse = None
+        print('y_true is of length zero')
+    return mse,
 
 
 def mae(y_pred, y_true):
@@ -80,8 +107,11 @@ def mae(y_pred, y_true):
     mae - mean absolut error
     """
 
-    """
-    YOUR CODE IS HERE
-    """
-    pass
+    try:
+        mae = sum(np.abs(y_true - y_pred)) / len(y_true)
+    except ZeroDivisionError:
+        mae = None
+        print('y_true is of length zero')
+    return mae,
+    
     
